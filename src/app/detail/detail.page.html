@@ -4,9 +4,8 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
-    <!-- *ngIf="authorUid == userUid" -->
     <ion-buttons slot="end" >
-      <ion-button (click)="deleteNews()" color="light">
+      <ion-button (click)="deleteNews()" color="light" *ngIf="authorUid == userUid">
         <ion-icon name="trash-outline" color="danger"></ion-icon>
       </ion-button>
     </ion-buttons>
