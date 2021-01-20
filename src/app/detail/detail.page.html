@@ -55,7 +55,7 @@
       <span style="color: #a0a0a0;">评论加载中</span>
     </ion-text>
   </div>
-  <div class="flex flex-column ion-justify-content-center ion-align-items-center" *ngIf="unCommon">
+  <div class="flex flex-column ion-justify-content-center ion-align-items-center" *ngIf="pageKey?.length == 0 && unCommon">
     <ion-text>
       <span style="color: #a0a0a0;">暂无评论，快来抢沙发～</span>
     </ion-text>

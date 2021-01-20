@@ -24,7 +24,7 @@ export class HomePage {
   private name: string
   private imageUrl = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2043354718,212192109&fm=26&gp=0.jpg?id=" + new Date().getDate()
   private newsList = []
-  protected loading =  true
+  protected loading = true
   @ViewChild(IonContent) ionconten: IonContent
   constructor(
     private afs: AngularFirestore,
@@ -40,16 +40,16 @@ export class HomePage {
     })
   }
   async init(event?) {
-      this.afd.database.ref('post/news').once('value', news => {
-        let arr = []
-        news.forEach(item => {
-          arr.push(item.val())
-        })
-        this.newsList = arr
-        this.loading = false
-        if(event) {
-          event.target.complete()
-        }
+    this.afd.database.ref('post/news').once('value', news => {
+      let arr = []
+      news.forEach(item => {
+        arr.push(item.val())
+      })
+      this.newsList = arr
+      this.loading = false
+      if (event) {
+        event.target.complete()
+      }
     })
   }
   // loadData(event) {

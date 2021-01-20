@@ -203,6 +203,6 @@ export class DetailPage implements OnInit {
     toast.present();
   }
   ngOnDestroy() {
-    this.commonRef.off()
+    this.commonRef ? this.commonRef.off() : null
   }
 }
