@@ -1,0 +1,36 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>发布文章</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card class="ion-margin-top">
+    <ion-input type="text" class="ion-padding" placeholder="请输入文章标题" [(ngModel)]="title"></ion-input>
+    <ion-textarea rows="6" cols="20" placeholder="请输入文章内容" style="padding-left: 15px;" [(ngModel)]="body">
+    </ion-textarea>
+    <input type="file" placeholder="选择图片" hidden #input (change)="uploadFile($event)">
+    <!-- upload select -->
+    <div class="ion-margin select-file" [hidden]="fileToUpload" (click)="selectFile()">
+      <ion-icon name="add" color="primary" style="font-size: 30px;"></ion-icon>
+      <span style="font-size: 12px;">选择上传图片</span>
+    </div>
+    <!-- uploading -->
+    <div *ngIf="fileToUpload && !fileUrl">
+      <div class="ion-margin select-file">
+        <ion-spinner name="circles"></ion-spinner>
+        <span>{{ (uploadProgress * 100).toString().slice(0,4) }}%</span>
+      </div>
+    </div>
+    <!-- uploaded -->
+    <div [hidden]="!fileUrl" class="ion-margin" (click)="selectFile()">
+      <img [src]="fileUrl" alt="" width="80" height="80">
+    </div>
+    <ion-button (click)="postNews()" class="ion-margin-top" expand="block" shape="round">
+      发布
+    </ion-button>
+  </ion-card>
+</ion-content>

@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      文件上传
+    </ion-title>
+
+  </ion-toolbar>
+</ion-header>
+<ion-content padding>
+  <form #f="ngForm" (ngSubmit)="uploadAvatar(f)">
+    <ion-grid>
+      <ion-row justify-content-center>
+        <ion-col align-self-center size-md="6" size-lg="5" size-xs="12">
+          <div text-center>
+            <h3>Update your profile photo</h3>
+          </div>
+          <!-- 上传进度条 -->
+          <ion-progress-bar type="determinate" [value]="uploadProgress" *ngIf="uploadProgress < 1"  color="primary"></ion-progress-bar>
+          <div padding>
+            <ion-item>
+              <!-- 图片显示 -->
+              <img *ngIf="avatarURL" [src]="avatarURL" />
+            </ion-item>
+            <ion-item>
+              <!-- accept="image/x-png,image/jpeg" -->
+              <input name="file" type="file" (change)="attachFile($event)" ngModel required />
+            </ion-item>
+          </div>
+          <div padding>
+            <ion-button size="large" type="submit" [disabled]="f.invalid" expand="block">upload file</ion-button>
+            <ion-button size="large"  expand="block" (click)="uploadPause()">暂停</ion-button>
+            <ion-button size="large"  expand="block" (click)="uploadResume()">恢复</ion-button>
+            <ion-button size="large"  expand="block" (click)="uploadCancel()">取消</ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>
+</ion-content>

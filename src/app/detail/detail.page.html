@@ -1,0 +1,88 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>{{ news?.title}}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="home"></ion-back-button>
+    </ion-buttons>
+    <!-- *ngIf="authorUid == userUid" -->
+    <ion-buttons slot="end" >
+      <ion-button (click)="deleteNews()" color="light">
+        <ion-icon name="trash-outline" color="danger"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header color="primary">
+      <ion-card-title>{{ news?.title }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-img [src]="news?.img" class="ion-margin"></ion-img>
+      {{ news?.body }}
+    </ion-card-content>
+
+  </ion-card>
+  
+  <div class="ion-padding-start" [hidden]="!common?.length > 0">
+    <h3 style="color: #a0a0a0;">热门评论</h3>
+  </div>
+
+  <ion-card class="common" *ngIf="common?.length > 0">
+    <ion-grid fixed *ngFor="let com of common;let i=index">
+      <ion-row>
+        <ion-col size="12" class="flex ion-justify-content-between">
+          <span>{{ com?.author?.slice(0,6) }}...
+            <ion-text color="primary" *ngIf="com?.author === authorUid">
+              &nbsp;(作者)&nbsp;
+            </ion-text>
+            说：
+          </span>
+          <ion-icon name="trash-outline" color="danger" (click)="delectCommon(i)"
+            *ngIf="com?.author === userUid"></ion-icon>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12" class="ion-padding">
+          {{ com?.info }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+  <div class="flex flex-column ion-justify-content-center ion-align-items-center" *ngIf="isLoading">
+    <ion-spinner name="bubbles"></ion-spinner>
+    <ion-text>
+      <span style="color: #a0a0a0;">评论加载中</span>
+    </ion-text>
+  </div>
+  <div class="flex flex-column ion-justify-content-center ion-align-items-center" *ngIf="unCommon">
+    <ion-text>
+      <span style="color: #a0a0a0;">暂无评论，快来抢沙发～</span>
+    </ion-text>
+  </div>
+  
+
+  <ion-text color="primary" class="flex ion-justify-content-center" *ngIf="pageKey?.length > common?.length && isLoading == false">
+    <span (click)="showMore()">点击查看更多</span>
+  </ion-text>
+
+</ion-content>
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="8">
+          <ion-input type="text" style="background-color: #f0f0f0;
+          border-radius: 40px;color: #a0a0a0;" placeholder="想说点什么吗?" class="ion-padding" [(ngModel)]="commones"></ion-input>
+        </ion-col>
+        <ion-col size="4">
+          <ion-button (click)="postCommon()" style="height: 100%;" fill="clear" size="small"  shape="round">
+            提交评论
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </ion-toolbar>
+</ion-footer>

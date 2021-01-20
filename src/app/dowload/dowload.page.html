@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>文件下载</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-item *ngFor="let item of files" lines="none" style="height: 80px;">
+      <ion-grid fixed>
+        <ion-row style="text-align: left;">
+          <ion-col size="3">
+            <img src="{{item?.src}}" alt="">
+          </ion-col>
+          <ion-col size="6" style="text-align: center;">
+            {{ item?.name }}
+          </ion-col>
+          <ion-col size="3" style="text-align: right;">
+            <ion-button (click)="dowloadFille(item?.id)" fill="clear" color="light">
+              <ng-container *ngIf="item?.fileStatus == 0">
+                <ion-icon name="download-outline" color="dark"></ion-icon>
+              </ng-container>
+              <ng-container *ngIf="item?.fileStatus == 1">
+                <ion-spinner name="crescent"></ion-spinner>
+                <span style="position: absolute;color: black;">99</span>
+              </ng-container>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-card>
+</ion-content>
+<!-- <ion-button (click)="onClick()" fill="clear" color="light">
+  <ng-container *ngIf="item?.fileStatus == 0">
+    <ion-icon name="download-outline" color="dark"></ion-icon>
+  </ng-container>
+  <ng-container *ngIf="item?.fileStatus == 1">
+    <ion-spinner name="crescent"></ion-spinner>
+    <span style="position: absolute;color: black;">99</span>
+  </ng-container>
+</ion-button> -->

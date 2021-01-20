@@ -1,20 +1,59 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar>
     <ion-title>
-      Blank
+      美食广场
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="ios-arrow-round-down-outline" pullingText="Pull to refresh"
+      refreshingSpinner="bubbles" refreshingText="正在加载中...">
+    </ion-refresher-content>
+    </ion-refresher>
+    <div class="flex min-height ion-justify-content-center ion-align-items-center" [hidden]="!loading">
+      <ion-spinner></ion-spinner>
+    </div>
+    <ion-card *ngFor="let news of newsList" (click)="toDetail(news)">
+      <div class="flex ion-justify-content-center">
+        <ion-img [src]="news?.img" style="width: 100%;height: 23vh;"></ion-img>
+      </div>
+        <ion-card-header>
+          <ion-card-subtitle>{{ news?.title }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          {{ news?.body?.slice(0,100) }}...
+        </ion-card-content>
+    </ion-card>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+
+    <!-- 加载更多 -->
+  <!-- <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll> -->
+
+
+  <!-- <ion-card hidden=true>
+    <ion-input class="ion-padding" type="text" [(ngModel)]="name" placeholder="输入用户名"></ion-input>
+    <ion-input class="ion-padding" type="text" [(ngModel)]="email" placeholder="输入邮箱"></ion-input>
+    <ion-input class="ion-padding" type="text" [(ngModel)]="password" placeholder="输入密码"></ion-input>
+  </ion-card> -->
 </ion-content>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" [routerLink]="[ '/dadd']">
+  <ion-fab-button style="outline: none;">
+    <ion-icon name="add-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<!-- <ion-content>
+  <ion-router-outlet></ion-router-outlet>
+</ion-content> -->
+<ion-footer>
+  <!-- [disabled]="sendBtnShow"  -->
+  <!-- <ion-button (click)="writeUserData()" expand="block" fill="clear" shape="round">
+    写入数据
+  </ion-button> -->
+</ion-footer>

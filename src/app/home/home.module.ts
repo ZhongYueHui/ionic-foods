@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 
 import { HomePageRoutingModule } from './home-routing.module';
-
-
+import { Student1Component } from '../student1/student1.component'
+import { Studentt2Component } from '../studentt2/studentt2.component'
 @NgModule({
   imports: [
     CommonModule,
@@ -14,6 +14,7 @@ import { HomePageRoutingModule } from './home-routing.module';
     IonicModule,
     HomePageRoutingModule
   ],
-  declarations: [HomePage]
+  declarations: [HomePage, Student1Component, Studentt2Component],// 声明
+  entryComponents: [Student1Component, Studentt2Component] // 导出
 })
-export class HomePageModule {}
+export class HomePageModule { }

@@ -1,0 +1,12 @@
+<ion-tab-bar slot="bottom">
+  <ion-toolbar>
+    <ion-title>学生信息</ion-title>
+  </ion-toolbar>
+</ion-tab-bar>
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item lines="none" *ngFor="let item of stuentArr" :key="item" [routerLink]="['/home/detail']"  >
+      <ion-label>{{ item?.name }}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

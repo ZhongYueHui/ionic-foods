@@ -1,0 +1,318 @@
+import { Component } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore'
+import { AngularFireStorage } from '@angular/fire/storage'
+import { AngularFireAuth } from '@angular/fire/auth'
+import { AngularFireDatabase } from '@angular/fire/database'
+import * as firebase from 'firebase';
+import { stat } from 'fs';
+@Component({
+  selector: 'app-home',
+  templateUrl: 'home.page.html',
+  styleUrls: ['home.page.scss'],
+})
+export class HomePage {
+  messageList: string[]
+  user = null
+  sendBtnShow = true
+  message: string
+  list = []
+  RefDoc: AngularFirestoreCollection
+  constructor(
+    private afs: AngularFirestore,
+    private afAuth: AngularFireAuth,
+    private afsf: AngularFireStorage
+  ) {
+    this.afAuth.signInAnonymously().then(user => {
+      console.log(user.user.uid)
+    })
+    this.RefDoc = this.afs.collection("cities")
+    // this.RefDoc.auditTrail(["added"]).subscribe(doc => {
+    //   doc.forEach(e => {
+    //     console.log(e);
+
+    //   })
+    // })
+    // this.wirteHandle()
+    // this.RefDoc.ref.onSnapshot(e => {
+    //   let list = []
+    //   e.forEach(i => {
+    //     list.push(i.data())
+    //   })
+    //   console.log(list);
+    //   this.list = list
+    // })
+    // this.transactionHandle()
+    // this.RefDoc.doc("BJ").ref
+    //   .onSnapshot({
+    //     // Listen for document metadata changes
+    //     includeMetadataChanges: true
+    //   }, function (doc) {
+    //     console.log(doc.data())
+    //   });
+    // setTimeout(() => {
+    //   this.RefDoc.doc("BJ").get().subscribe(res => {
+    //     console.log("selected")
+    //   })
+    // }, 5000)
+    this.init()
+  }
+  addData() {
+    this.RefDoc.doc("NCAS").set({
+      name: this.message, state: "CA", country: "CN",
+      capital: false, population: 86000 + new Date().getMinutes(),
+      regions: ["west_coast", "norcal"]
+    });
+  }
+  deleteData() {
+    this.RefDoc.auditTrail(["added", "modified", "removed"]).subscribe(doc => {
+
+    })
+    this.RefDoc.doc("NC").get().subscribe(doc => {
+      // console.log(doc.data())
+    })
+
+    // 
+    // this.RefDoc.doc("SF").delete().then(e => {
+    //   console.log("删除成功");
+    // })
+    // this.RefDoc.doc("NC").update({
+    //   name: firebase.default.firestore.FieldValue.delete()
+    // })
+    // this.RefDoc.doc("NC").update({
+    //   name: "JiangXi"
+    // })
+  }
+  // 事务处理
+  // transactionHandle() {
+  //   return this.afs.firestore.runTransaction((transaction) => {
+  //     // 获取文档节点
+  //     let sfDocRef = this.afs.collection("cities").doc("NC").ref;
+  //     // This code may get re-run multiple times if there are conflicts.
+  //     return transaction.get(sfDocRef).then((sfDoc) => {
+  //       // 判断文档节点是否存在
+  //       if (!sfDoc.exists) {
+  //         throw "Document does not exist!";
+  //       }
+  //       // 将文档的 population+1
+  //       var newPopulation = sfDoc.data().population + 1;
+  //       // 将population+1的值更新到文档中去
+  //       transaction.update(sfDocRef, { population: newPopulation });
+  //     });
+  //   }).then(function () {
+  //     console.log("Transaction successfully committed!");
+  //   }).catch(function (error) {
+  //     console.log("Transaction failed: ", error);
+  //   });
+  // }
+
+  transactionHandle() {
+    return this.afs.firestore.runTransaction((transaction) => {
+      // 获取文档节点
+      let sfDocRef = this.afs.collection("cities").doc("NC").ref;
+      // This code may get re-run multiple times if there are conflicts.
+      return transaction.get(sfDocRef).then((sfDoc) => {
+        // 判断文档节点是否存在
+        if (!sfDoc.exists) {
+          throw "Document does not exist!";
+        }
+        // 将文档的 population+1
+        let newPopulation = sfDoc.data().population + 1;
+        if (newPopulation > 100) {
+          // 将population+1的值更新到文档中去
+          transaction.update(sfDocRef, { population: newPopulation });
+          return newPopulation; // 与 Promise.resolve(newPopulation)一致
+        } else {
+          return Promise.reject('Sorry! Population is too big.')
+        }
+
+      });
+    }).then(newPopulation => {
+      // 接收事务成功后的返回信息
+      console.log("Transaction successfully committed!" + newPopulation);
+    }).catch((error) => {
+      // 接收事务失败后的返回信息
+      console.log("Transaction failed: ", error);
+    });
+  }
+  wirteHandle() {
+    const db = this.afs.firestore;
+    var batch = db.batch();
+
+    // 设置文档NYC的name
+    var nycRef = db.collection("cities").doc("NYC");
+    batch.set(nycRef, { name: "New York City" });
+
+    // 更新文档NC的population字段
+    var sfRef = db.collection("cities").doc("NC");
+    batch.update(sfRef, { "population": 1000000 });
+
+    // 删除文档LA
+    var laRef = db.collection("cities").doc("LA");
+    batch.delete(laRef);
+
+    // Commit the batch
+    batch.commit().then(status => {
+      console.log("status", status)
+    });
+  }
+  listensDocs() {
+    // this.RefDoc.doc("NC").ref.delete()
+    // 监听 state为 CA的数据更改
+    this.afs.collection("cities").ref.where("country", "==", "CN")
+      .onSnapshot(function (querySnapshot) {
+        querySnapshot.docChanges().forEach(status => {
+          if (status.type == "added") {
+            console.log("changed data", status.doc.data())
+          } else if (status.type == "removed") {
+            console.log("removed data", status.doc.data())
+          } else if (status.type == "modified") {
+            console.log("modified data", status.doc.data())
+          }
+        })
+      });
+  }
+  selectData() {
+    // 使用 in regions的值仅包含west_coast或者east_coast，也就是说
+    // regions: ['west_coast'] 或者 regions: ['east_coast']，不能有其他值
+    // this.RefDoc.ref.where('region', 'in',
+    // [['west_coast', 'east_coast']]).get().then(e =>{
+    // })
+
+
+
+    // where方法串联查询，但是必须添加索引 建议通过报错信息进入索引构建
+    // this.RefDoc.ref.where("state", "==", "CA").where("population",">",1000)
+    // .get().then(res => {
+    //   res.forEach(item => {
+    //     console.log(item.data())
+    //   })
+    // })
+
+    // 集合组查询
+    // var museums = this.afs.collectionGroup('landmarks').where('type', '==', 'museum');
+    // museums.get().then(function (querySnapshot) {
+    //   querySnapshot.forEach(function (doc) {
+    //     console.log(doc.id, ' => ', doc.data());
+    //   });
+    // });
+
+    // 集合组查询，查询子集 landmarks 下type = museum的所有数据
+    // this.afs.collectionGroup("landmarks",res => res.where('type', '==', 'museum'))
+    // .get().subscribe(res => {
+    //   res.forEach(doc => {
+    //     console.log(doc.id ,"=>",doc.data())
+    //   })
+    // })
+
+    // 限制数量
+    // this.afs.collection("cities").ref.limit(3).get().then(e => {
+    //   e.forEach(item => {
+    //     console.log(item.data())
+    //   })
+    // })
+
+    // 根据名字倒序取3条数据
+    // this.afs.collection("cities").ref.orderBy("state").orderBy("name","desc").limit(3).get().then(e => {
+    //   e.forEach(item => {
+    //     console.log(item.data())
+    //   })
+    // })
+    // this.afs.collection("cities").ref.where("population", ">", 100000).orderBy("population").limit(2).get().then(res => {})
+
+    // 游标的使用  从 population 等于 9000000 开始查询数据，相当于以 population 大于 9000000开始查询数据，最小不小于9000000
+    // this.afs.collection("cities").ref.orderBy("population").startAt(9000000).get().then(e => {
+    //   e.forEach(item => {
+    //     console.log(item.data())
+    //   })
+    // })
+
+    //从 population 等于 1000000 开始查询数据，相当于以 population 小于 1000000开始查询数据，最大不超过1000000
+    // this.afs.collection("cities").ref.orderBy("population").endAt(1000000).get().then(e => {
+    //     e.forEach(item => {
+    //       console.log(item.data())
+    //     })
+    //   })
+
+    // // 查询比旧金山人口多城市
+    // this.afs.collection("cities").doc("SF").get().toPromise().then(doc => {
+    //   this.afs.collection("cities").ref
+    //     .orderBy("population")
+    //     .endAt(doc).get().then(e => {
+    //       e.forEach(item => {
+    //         console.log(item.data())
+    //       })
+    //     })
+    // })
+
+
+    // 查询分页
+    // firebase.default.firestore().enablePersistence().catch(err => {
+    //   console.log(err.code)
+    // })
+
+    // firebase.default.firestore().settings({
+    //   cacheSizeBytes: firebase.default.firestore.CACHE_SIZE_UNLIMITED
+    // });
+    // 首次查询
+    // const limit = 2
+    // const first = this.afs.collection("cities").ref
+    //   .orderBy("population")
+    //   .limit(limit)
+
+    // first.get().then((documentSnapshots) => {
+    //   // 获取最后一个显示的文档位置
+    //   const lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
+
+    //   // 从上次查询结果的最后一个开始查询
+    //   const next = this.afs.collection("cities").ref
+    //     .orderBy("population")
+    //     .startAfter(lastVisible)
+    //     .limit(limit).get().then(e => {
+    //       e.docs.forEach(l => {
+    //         console.log(l.data())
+    //       })
+    //     })
+    // })
+
+    // 设置缓存大小
+    firebase.default.firestore().settings({
+      cacheSizeBytes: firebase.default.firestore.CACHE_SIZE_UNLIMITED
+    });
+    // 开启
+    firebase.default.firestore().enablePersistence()
+    // this.afs.collection("cities").ref
+    //   .onSnapshot({ includeMetadataChanges: true }, function (snapshot) {
+    //     snapshot.docChanges().forEach(function (change) {
+    //       if (change.type === "added") {
+    //         console.log("New city: ", change.doc.data()); // 实时侦听显示加入的数据
+    //       }
+    //       var source = snapshot.metadata.fromCache ? "local cache" : "server"; // 实时侦听显示加入的数据来自何处
+    //       console.log("Data came from " + source);// 有网络显示的是serve 无网络即local cache
+    //     });
+    //   });
+      this.afs.collection("cities").ref.get().then(res => {
+        res.forEach(e => {
+          console.log(e.data())
+        })
+      }).catch(err => {
+        console.log(err)
+      })
+    // 开启缓存后在无网络情况下添加数据
+    // setTimeout(() => {
+    //   this.afs.collection("cities").doc("CY").set({
+    //     name: "car log",
+    //     state: "CA",
+    //     country: "BJ"
+    //   })
+    // }, 3000)
+  }
+  getData() {
+    this.afs.collection("cities").doc("BJ").ref.get().then(e => {
+      console.log(e.data())
+    })
+  }
+  init() {
+    // this.listensDocs()
+    this.selectData()
+  }
+}
